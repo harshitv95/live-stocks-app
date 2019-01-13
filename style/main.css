@@ -1,0 +1,33 @@
+.nav-link {
+    font-weight: 600;
+}
+
+.stock-rise {
+    background-color: lightgreen;
+}
+
+.stock-rise:hover,
+.stock-rise:hover a {
+    background-color: green !important;
+    color: white;
+}
+
+.stock-fall {
+    background-color: pink;
+}
+
+.stock-fall:hover,
+.stock-fall:hover a {
+    background-color: red !important;
+    color: white;
+}
+
+#stocks-live-table>thead>tr>th,
+#stocks-live-table>tbody>tr>td {
+    text-align: center;
+}
+
+.valign,
+.valign * {
+    vertical-align: middle !important;
+}

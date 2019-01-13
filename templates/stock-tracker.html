@@ -1,0 +1,69 @@
+<div class="container" style="padding-top: 10px">
+    <div>
+        <h3>Live stocks data will be updated in the table below.</h3>
+    </div>
+    <div>
+        <table id="stocks-live-table" class="table table-hover table-sm">
+            <thead>
+                <tr class="valign">
+                    <th>Ticker</th>
+                    <th>Price <button style="padding-top:  0rem !important;vertical-align: top !important;" class="btn btn-sm btn-default" data-toggle="modal" data-target="#price-config-modal"><i class="fas fa-cog"></i></button></th>
+                    <th>Trend<br/><i>(Since Last Page Load)</i></th>
+                    <th>Last Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="(ticker, stock) in getStocks()" class="{{stock.status}}">
+                    <td>{{stock.ticker}}</td>
+                    <td>{{stock.price | roundNum : getDecimalDigits()}}</td>
+                    <td><a ng-if="stock.status.trim() !== ''" href="javascript:void();" ng-click="visualizeTrend(stock.ticker)" data-toggle="modal" data-target="#chart-modal"><u>View</u></a></td>
+                    <td>{{stock.lastUpdatedReadable}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal" id="chart-modal" tabindex="-1" role="dialog" aria-labelledby="chart-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="chart-modal-label">Stock Price Trends</h5>
+                    <!-- <h6 class="modal-title">Hover above the dots in the chart to read data</h6> -->
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <canvas id="chart-container-canvas"></canvas>
+                </div>
+                <!-- <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div> -->
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="price-config-modal" tabindex="-1" role="dialog" aria-labelledby="price-config-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="price-config-modal-label">Stock Price Config</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div>
+                            <label for="num-digits" class="col-form-label">Number of Decimal places:</label>
+                            <input type="number" class="form-control" ng-init="numDigits = getDecimalDigits();" ng-model="numDigits" id="num-digits" />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="setDecimalDigits(numDigits);">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
