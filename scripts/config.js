@@ -3,6 +3,7 @@ class Config {
 
     constructor() {
         this.stocksWsServer = "ws://stocks.mnet.website";
+        // this.stocksWsServer = "wss://stocks.mnet.website";
     }
 
     get(key) {
