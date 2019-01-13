@@ -1,3 +1,4 @@
+// var mutexTicker = null;
 stocksApp.controller('trackerController', function($scope, $interval) {
     changeActiveTab('track');
     $scope.stocksInfo = {};
@@ -5,21 +6,22 @@ stocksApp.controller('trackerController', function($scope, $interval) {
     var chart = new TimeSeries('chart-container-canvas');
     var defaultDecimalDigits = 2;
 
+
     function updateReadableTime() {
-        Object.keys($scope.stocksInfo).forEach(function(ticker) {
+        Object.keys($scope.stocksInfo).forEach((ticker) => {
             $scope.stocksInfo[ticker].lastUpdatedReadable = readableTime($scope.stocksInfo[ticker].lastUpdated);
         });
     }
     timeInterval = $interval(updateReadableTime, 5000);
 
     function receiveStocks(stocksObj) {
-        stocksObj.forEach(function(stock, idx) {
-            let ticker = stock[0];
+        stocksObj.forEach((stock, idx) => {
+            let ticker = stock[0].toUpperCase();
+            // if (!!mutexTicker && mutexTicker === ticker)
+            //     return;
             let price = stock[1];
-            // console.log(ticker);
-            // console.log(price);
-            if ($scope.stocksInfo.hasOwnProperty(ticker.toUpperCase())) {
-                let stock = $scope.stocksInfo[ticker.toUpperCase()];
+            if ($scope.stocksInfo.hasOwnProperty(ticker)) {
+                let stock = $scope.stocksInfo[ticker];
                 if (stock.price < price)
                     stock.status = 'stock-rise';
                 else if (stock.price > price)
@@ -32,8 +34,8 @@ stocksApp.controller('trackerController', function($scope, $interval) {
                 $scope.stocksInfo[ticker.toUpperCase()] = stock;
             } else {
                 let d = new Date().getTime();
-                $scope.stocksInfo[ticker.toUpperCase()] = {
-                    'ticker': ticker.toUpperCase(),
+                $scope.stocksInfo[ticker] = {
+                    'ticker': ticker,
                     'price': price,
                     'lastUpdated': d,
                     'lastUpdatedReadable': readableTime(d),
@@ -42,32 +44,30 @@ stocksApp.controller('trackerController', function($scope, $interval) {
                     'status': ''
                 };
             }
-            // console.log($scope.stocksInfo);
             $scope.$apply();
         });
     }
+
 
     var webSocket = new WebSocket(config.stocksWsServer);
     webSocket.onopen = function() {
         // console.log('Stocks WebSocket server connected');
     };
 
-    webSocket.onerror = function(event) {
-        console.error("WebSocket error : " + event);
+    webSocket.onerror = function(evt) {
+        console.error("WebSocket error : " + evt);
+        alert("Connection to server Failed");
     };
 
     webSocket.onmessage = function(msgEvt) {
         if (angular.isDefined(timeInterval) && timeInterval != null) {
             $interval.cancel(timeInterval);
             timeInterval = null;
-            // console.log('Readable time interval stopped');
         }
-        // console.log(msgEvt);
         let data = JSON.parse(msgEvt.data);
         receiveStocks(data);
         updateReadableTime();
         timeInterval = $interval(updateReadableTime, 5000);
-        // console.log('Readable time interval started');
     };
 
     webSocket.onclose = function() {
@@ -91,15 +91,25 @@ stocksApp.controller('trackerController', function($scope, $interval) {
     };
 
     $scope.visualizeTrend = function(ticker) {
-        // console.log("Generating chart for [%s] with data:\nX:" + $scope.stocksInfo[ticker].timeTrend + "\nY:" + $scope.stocksInfo[ticker].priceTrend, ticker);
-        chart.destroy();
+
+        // $('div#canvas-container').append('<canvas id="chart-container-canvas"></canvas>');
+        // mutexTicker = ticker;
+        // let timeTrend = [],
+        //     priceTrend = [];
+        // for (let i = 0; i < $scope.stocksInfo[ticker].timeTrend.length; i++) {
+        //     timeTrend.push($scope.stocksInfo[ticker].timeTrend[i]);
+        //     priceTrend.push($scope.stocksInfo[ticker].priceTrend[i]);
+        // }
+        // mutexTicker = null;
         $('#chart-modal').on('shown.bs.modal', function(e) {
-            chart.generateTimeSeries($scope.stocksInfo[ticker].timeTrend, $scope.stocksInfo[ticker].priceTrend, ticker + " stock price", $scope.stocksInfo[ticker].status === 'stock-rise' ? 'lightgreen' : null);
+            chart.generateTimeSeries($scope.stocksInfo[ticker].timeTrend.slice(0), $scope.stocksInfo[ticker].priceTrend.slice(0), ticker + " stock price", $scope.stocksInfo[ticker].status === 'stock-rise' ? 'lightgreen' : null);
         });
     };
 
     $('#chart-modal').on('hidden.bs.modal', function(e) {
+        // mutexTicker = null;
         chart.destroy();
+        // document.getElementById('chart-container-canvas').remove();
     });
 
 });

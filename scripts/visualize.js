@@ -14,8 +14,8 @@ class TimeSeries {
                     // backgroundColor: !!color ? color : 'rgb(255, 99, 132)',
                     borderColor: !!color ? color : 'rgb(255, 99, 132)',
                     data: y_axis,
-                    // pointHoverRadius: 4,
-                    // pointRadius: 3
+                    pointHoverRadius: 4,
+                    pointRadius: 3
                 }]
             },
             options: {
@@ -53,8 +53,9 @@ class TimeSeries {
         let canvas = document.getElementById(this.canvasId);
         if (!!canvas) {
             let cntx = canvas.getContext('2d');
+            if (this.chart != undefined && !!this.chart)
+                this.chart.destroy();
             this.chart = new Chart(cntx, this.chartConfig);
-            // console.log('Chart Generated');
         } else {
             console.error("Canvas element with id [%s] could not be located", this.canvasId);
         }
@@ -62,9 +63,8 @@ class TimeSeries {
 
     destroy() {
         if (!!this.chart) {
+            this.chart.clear();
             this.chart.destroy();
-            this.chart = null;
-            // console.log('Chart destroyed');
         }
     }
 
